@@ -1,0 +1,17 @@
+{
+  "name": "tera-signature-system",
+  "version": "2.0.0",
+  "description": "Sistem Tanda Tangan Tera Meter - PERUMDA Sukoharjo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.14.0",
+    "sharp": "^0.33.2",
+    "uuid": "^9.0.0",
+    "xlsx": "^0.18.5"
+  }
+}

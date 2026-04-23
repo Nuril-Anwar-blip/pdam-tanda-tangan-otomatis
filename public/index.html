@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tera Meter Digital | PERUMDA Sukoharjo</title>
+<style>
+:root{
+  --blue:#002060;--blueM:#1565C0;--blueL:#e3f2fd;
+  --green:#1b5e20;--greenL:#e8f5e9;
+  --red:#b71c1c;--redL:#ffebee;
+  --orange:#e65100;--orangeL:#fff3e0;
+  --gray:#f4f4f4;--border:#d0d0d0;--text:#1a1a1a;
+  --radius:10px;--shadow:0 2px 12px rgba(0,0,0,.13);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;font-size:16px;background:#dde4ef;color:var(--text);min-height:100vh}
+
+/* ─ TOPBAR ─ */
+.tb{background:var(--blue);color:#fff;display:flex;align-items:stretch;box-shadow:0 3px 10px rgba(0,0,0,.3);position:sticky;top:0;z-index:100}
+.tb-brand{padding:10px 20px;border-right:1px solid rgba(255,255,255,.2);display:flex;flex-direction:column;justify-content:center}
+.tb-brand .org{font-size:10px;opacity:.75;letter-spacing:.5px}
+.tb-brand .ttl{font-size:15px;font-weight:700}
+.tb-nav{display:flex;align-items:center;padding:0 8px;gap:2px;flex:1}
+.nb{background:none;border:none;color:rgba(255,255,255,.7);padding:8px 16px;font-size:15px;font-weight:700;cursor:pointer;border-radius:6px;display:flex;align-items:center;gap:7px;transition:.2s}
+.nb:hover{background:rgba(255,255,255,.15);color:#fff}
+.nb.on{background:rgba(255,255,255,.22);color:#fff}
+.tb-stat{padding:8px 18px;border-left:1px solid rgba(255,255,255,.2);display:flex;gap:18px;align-items:center}
+.s-badge{text-align:center;font-size:11px;opacity:.85}
+.s-badge .n{font-size:19px;font-weight:800;display:block;line-height:1}
+
+/* ─ MAIN ─ */
+.main{max-width:1120px;margin:0 auto;padding:20px 14px 50px}
+.page{display:none}.page.on{display:block}
+
+/* ─ CARD ─ */
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden}
+.ch{background:var(--blue);color:#fff;padding:13px 20px;display:flex;align-items:center;gap:10px}
+.ch h2{font-size:16px;font-weight:700}
+.ch .ic{font-size:22px}
+.cb{padding:20px}
+
+/* ─ BUTTONS ─ */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;font-size:15px;font-weight:700;border:none;border-radius:8px;cursor:pointer;transition:.2s;line-height:1;text-decoration:none}
+.btn:hover{opacity:.85;transform:translateY(-1px)}.btn:active{transform:translateY(0)}
+.btn-p{background:var(--blue);color:#fff}
+.btn-s{background:var(--green);color:#fff}
+.btn-d{background:var(--red);color:#fff}
+.btn-w{background:#f57c00;color:#fff}
+.btn-o{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.btn-sm{padding:7px 14px;font-size:13px}
+.btn-lg{padding:16px 30px;font-size:18px}
+.btn-xl{padding:18px 36px;font-size:20px;border-radius:12px}
+.btn-bl{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* ─ DASHBOARD TILES ─ */
+.d-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.tile{background:#fff;border-radius:var(--radius);padding:22px 16px;text-align:center;box-shadow:var(--shadow);border-top:4px solid var(--blue);cursor:pointer;transition:.2s}
+.tile:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(0,0,0,.16)}
+.tile .ic{font-size:38px;margin-bottom:6px}
+.tile .num{font-size:34px;font-weight:800;color:var(--blue);line-height:1}
+.tile .lbl{font-size:13px;color:#666;margin-top:4px}
+.tile.g{border-top-color:var(--green)}.tile.g .num{color:var(--green)}
+.tile.r{border-top-color:var(--red)}.tile.r .num{color:var(--red)}
+.qa{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.qc{background:#fff;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.qc h3{font-size:17px;color:var(--blue)}
+.qc p{font-size:14px;color:#555;line-height:1.55}
+
+/* ─ ALERTS ─ */
+.alt{padding:13px 16px;border-radius:8px;font-size:14px;margin-bottom:13px;display:flex;align-items:flex-start;gap:10px}
+.alt-i{background:var(--blueL);color:#0d2b66;border-left:4px solid var(--blueM)}
+.alt-s{background:var(--greenL);color:var(--green);border-left:4px solid var(--green)}
+.alt-w{background:var(--orangeL);color:var(--orange);border-left:4px solid var(--orange)}
+.alt-d{background:var(--redL);color:var(--red);border-left:4px solid var(--red)}
+
+/* ─ SIGNATURE ─ */
+.ks{border:2px solid var(--blue);border-radius:var(--radius);padding:20px;margin-bottom:22px;background:var(--blueL)}
+.ks h3{font-size:16px;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.sp{width:200px;height:76px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden;margin:8px 0}
+.sp img{max-width:100%;max-height:100%;object-fit:contain}
+.sp .ph{color:#aaa;font-size:12px;text-align:center;padding:6px}
+.sp.ok{border-style:solid;border-color:var(--green)}
+.pg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:14px}
+.pc{background:#fff;border:1.5px solid var(--border);border-radius:var(--radius);padding:14px;transition:.2s}
+.pc:hover{box-shadow:var(--shadow)}
+.pc.ok{border-color:var(--green);background:var(--greenL)}
+.pc .pn{font-size:15px;font-weight:700;margin-bottom:3px}
+.pc .ps{font-size:12px;color:#777;margin-bottom:8px}
+.uz{border:2px dashed #90a4ae;border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:.2s;background:var(--gray);position:relative;min-width:200px}
+.uz:hover{border-color:var(--blue);background:var(--blueL)}
+.uz input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz .ui{font-size:26px;margin-bottom:3px}
+.uz .ut{font-size:12px;color:#555}
+.sbadge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700}
+.sb-ok{background:var(--greenL);color:var(--green)}
+.sb-no{background:var(--redL);color:var(--red)}
+.sb-w{background:var(--orangeL);color:var(--orange)}
+
+/* ─ TABLE ─ */
+.tw{overflow-x:auto}
+table.rt{width:100%;border-collapse:collapse;font-size:14px}
+table.rt th{background:var(--blue);color:#fff;padding:10px 11px;text-align:left;white-space:nowrap}
+table.rt td{padding:9px 11px;border-bottom:1px solid var(--border);vertical-align:middle}
+table.rt tr:hover td{background:var(--blueL)}
+table.rt tr:nth-child(even) td{background:var(--gray)}
+table.rt tr:nth-child(even):hover td{background:var(--blueL)}
+.cb2{width:20px;height:20px;cursor:pointer;accent-color:var(--blue)}
+.ft{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.ft input,.ft select{padding:10px 13px;font-size:15px;border:2px solid var(--border);border-radius:8px;outline:none;transition:.2s}
+.ft input:focus,.ft select:focus{border-color:var(--blue)}
+.ft input{flex:1;min-width:180px}
+.pag{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:14px;flex-wrap:wrap}
+.pb{padding:7px 13px;border:2px solid var(--border);background:#fff;border-radius:6px;cursor:pointer;font-size:14px;font-weight:700;transition:.2s}
+.pb:hover{border-color:var(--blue);color:var(--blue)}.pb.on{background:var(--blue);color:#fff;border-color:var(--blue)}.pb:disabled{opacity:.4;cursor:not-allowed}
+.selbar{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--orangeL);border:2px solid var(--orange);border-radius:var(--radius);margin-bottom:12px;flex-wrap:wrap}
+.selbar .sc{font-size:15px;font-weight:700;color:var(--orange)}
+
+/* ─ MODAL ─ */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:200;align-items:center;justify-content:center}
+.mo.on{display:flex}
+.mb{background:#fff;border-radius:14px;padding:28px;max-width:560px;width:93%;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:92vh;overflow-y:auto}
+.mb h2{font-size:20px;color:var(--blue);margin-bottom:10px}
+.mb p{font-size:14px;color:#555;margin-bottom:16px}
+.pgbar{width:100%;height:18px;background:var(--gray);border-radius:9px;overflow:hidden;margin:12px 0}
+.pgfill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blueM));border-radius:9px;transition:width .35s}
+.fl{max-height:260px;overflow-y:auto;border:1px solid var(--border);border-radius:8px}
+.fi{display:flex;align-items:center;justify-content:space-between;padding:9px 13px;border-bottom:1px solid var(--border);font-size:14px}
+.fi:last-child{border:none}
+.fi a{color:var(--blue);font-weight:700;text-decoration:none}
+.fi a:hover{text-decoration:underline}
+
+/* ─ FORM ─ */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:14px;font-weight:700;color:var(--blue)}
+.fg input,.fg select,.fg textarea{padding:11px 13px;font-size:15px;border:2px solid var(--border);border-radius:8px;outline:none;transition:.2s;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue)}
+.fg textarea{min-height:70px;resize:vertical}
+.fg .hint{font-size:12px;color:#888;margin-top:2px}
+.full{grid-column:1/-1}
+.section-title{font-size:15px;font-weight:700;color:var(--blue);padding:8px 0;border-bottom:2px solid var(--blueL);margin:6px 0 10px;grid-column:1/-1}
+
+/* ─ TOAST ─ */
+#toast{position:fixed;bottom:28px;right:28px;z-index:999;max-width:350px}
+.ti{background:#333;color:#fff;padding:13px 18px;border-radius:9px;margin-top:8px;font-size:15px;box-shadow:0 4px 16px rgba(0,0,0,.3);animation:si .28s ease;display:flex;align-items:center;gap:9px}
+.ti.s{background:var(--green)}.ti.e{background:var(--red)}.ti.w{background:var(--orange)}
+@keyframes si{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ─ MISC ─ */
+.divider{height:1px;background:var(--border);margin:14px 0}
+.flex{display:flex}.fw{flex-wrap:wrap}.g8{gap:8px}.g12{gap:12px}.ic{align-items:center}.jb{justify-content:space-between}
+.mt12{margin-top:12px}.mb12{margin-bottom:12px}
+.spin{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.tag-xls{background:#e3f2fd;color:#1565C0;padding:2px 7px;border-radius:12px;font-size:11px;font-weight:700}
+.tag-cst{background:#e8f5e9;color:#2e7d32;padding:2px 7px;border-radius:12px;font-size:11px;font-weight:700}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="tb">
+  <div class="tb-brand">
+    <span class="org">PERUMDA AIR MINUM TIRTA MAKMUR SUKOHARJO</span>
+    <span class="ttl">💧 Sistem Tanda Tangan Tera Meter</span>
+  </div>
+  <nav class="tb-nav">
+    <button class="nb on" onclick="nav('dashboard')" id="nb-dashboard"><span>🏠</span> Beranda</button>
+    <button class="nb"    onclick="nav('signatures')" id="nb-signatures"><span>✍️</span> Tanda Tangan</button>
+    <button class="nb"    onclick="nav('generate')"   id="nb-generate"><span>📄</span> Buat PDF</button>
+    <button class="nb"    onclick="nav('tambah')"     id="nb-tambah"><span>➕</span> Tambah Data</button>
+  </nav>
+  <div class="tb-stat">
+    <div class="s-badge"><span class="n" id="s-total">-</span>Total Data</div>
+    <div class="s-badge"><span class="n" id="s-pet">-</span>TTD Petugas</div>
+    <div class="s-badge"><span class="n" id="s-ket" style="color:#90ee90">-</span>TTD Ketua</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div class="page on" id="page-dashboard">
+  <div class="d-grid">
+    <div class="tile" onclick="nav('generate')">
+      <div class="ic">📋</div>
+      <div class="num" id="t-total">-</div>
+      <div class="lbl">Total Data Pelanggan</div>
+    </div>
+    <div class="tile g" onclick="nav('signatures')">
+      <div class="ic">✅</div>
+      <div class="num" id="t-ok">-</div>
+      <div class="lbl">Tanda Tangan Terunggah</div>
+    </div>
+    <div class="tile r" onclick="nav('signatures')">
+      <div class="ic">⚠️</div>
+      <div class="num" id="t-mis">-</div>
+      <div class="lbl">Tanda Tangan Belum Ada</div>
+    </div>
+  </div>
+  <div class="qa">
+    <div class="qc">
+      <h3>✍️ Langkah 1 — Tanda Tangan</h3>
+      <p>Upload foto tanda tangan <b>Ketua</b> (Harsono, S.H.) dan semua <b>Petugas</b>. Tanda tangan <b>Pelanggan dibuat otomatis</b> oleh sistem.</p>
+      <button class="btn btn-p btn-lg" onclick="nav('signatures')">✍️ &nbsp;Kelola Tanda Tangan</button>
+    </div>
+    <div class="qc">
+      <h3>📄 Langkah 2 — Buat Dokumen</h3>
+      <p>Pilih data pelanggan lalu klik <b>"Unduh PDF"</b> untuk satu dokumen, atau <b>"Buat Semua"</b> untuk semua sekaligus.</p>
+      <button class="btn btn-s btn-lg" onclick="nav('generate')">📄 &nbsp;Buat Dokumen PDF</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ic">📌</span><h2>Petunjuk Penggunaan Sistem</h2></div>
+    <div class="cb">
+      <div class="alt alt-i"><span style="font-size:22px">1️⃣</span><div><b>Upload Tanda Tangan Ketua (Harsono, S.H.)</b><br>Foto tanda tangan di kertas putih, lalu upload. Tanda tangan ketua tampil di Surat Perintah Kerja.</div></div>
+      <div class="alt alt-i"><span style="font-size:22px">2️⃣</span><div><b>Upload Tanda Tangan Petugas (±21 orang)</b><br>Setiap petugas upload foto tanda tangannya masing-masing. Tampil di Berita Acara.</div></div>
+      <div class="alt alt-s"><span style="font-size:22px">3️⃣</span><div><b>Tanda Tangan Pelanggan — Otomatis!</b><br>Tidak perlu upload apa pun. Sistem membuat tanda tangan pelanggan secara otomatis dari nama.</div></div>
+      <div class="alt alt-i"><span style="font-size:22px">4️⃣</span><div><b>Buat Dokumen PDF</b><br>Pilih data, klik <b>📄 Unduh</b> untuk satu dokumen, atau <b>⚡ Buat Semua PDF</b> untuk batch.</div></div>
+      <div class="alt alt-w"><span style="font-size:22px">➕</span><div><b>Tambah Data Baru</b><br>Gunakan menu <b>Tambah Data</b> untuk memasukkan data pelanggan baru untuk pekerjaan berikutnya.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TANDA TANGAN ══════════ -->
+<div class="page" id="page-signatures">
+  <div class="card">
+    <div class="ch"><span class="ic">👑</span><h2>Tanda Tangan Ketua — Harsono, S.H.</h2></div>
+    <div class="cb">
+      <div class="ks">
+        <h3>👑 Harsono, S.H. — Korhublang &nbsp;<span id="kb" class="sbadge sb-no">● Belum Ada</span></h3>
+        <p style="font-size:14px;color:#555;margin-bottom:10px">Tanda tangan ini muncul di <b>Surat Perintah Kerja</b> pada setiap dokumen.</p>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+          <div>
+            <div class="sp" id="kp"><span class="ph">📷<br>Belum ada</span></div>
+          </div>
+          <div>
+            <div class="uz">
+              <input type="file" accept="image/*" onchange="uploadKetua(this)">
+              <div class="ui">📁</div>
+              <div class="ut"><b>Klik untuk pilih foto</b><br>JPG/PNG — maks 8 MB</div>
+            </div>
+            <p style="font-size:12px;color:#888;margin-top:5px">💡 Tanda tangan di kertas putih, foto pakai HP sudah cukup</p>
+          </div>
+          <div id="kd" style="display:none">
+            <button class="btn btn-d" onclick="delSig('ketua','Harsono')">🗑️ Hapus</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ic">👷</span><h2>Tanda Tangan Petugas &nbsp;<span id="pg-hdr" style="opacity:.8;font-weight:400"></span></h2></div>
+    <div class="cb">
+      <div class="alt alt-i" style="margin-bottom:14px">💡 Tanda tangan petugas muncul di <b>Berita Acara</b>. Klik tombol di kartu petugas untuk upload.</div>
+      <div class="flex ic jb mb12">
+        <div id="pg-summary"></div>
+        <button class="btn btn-o btn-sm" onclick="loadSig()">🔄 Perbarui</button>
+      </div>
+      <div class="pg-grid" id="pg-grid"><div style="text-align:center;padding:40px;color:#aaa;grid-column:1/-1">Memuat...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ BUAT PDF ══════════ -->
+<div class="page" id="page-generate">
+  <div class="card">
+    <div class="ch"><span class="ic">⚡</span><h2>Buat Semua PDF Sekaligus</h2></div>
+    <div class="cb">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+        <div style="flex:1;min-width:200px">
+          <p style="font-size:15px;margin-bottom:10px">Buat <b id="g-total">-</b> dokumen PDF sekaligus. Cocok untuk batch besar.</p>
+          <div id="sig-warn" class="alt alt-w" style="display:none">⚠️ Ada petugas belum punya tanda tangan. Kolom tanda tangan petugas akan kosong, dokumen tetap bisa dibuat.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-s btn-xl" onclick="bulkGen('all')">⚡ &nbsp;Buat Semua PDF</button>
+          <button class="btn btn-p" onclick="bulkGen('xls')">📊 Hanya data Excel (<span id="g-xls">-</span>)</button>
+          <button class="btn btn-w" onclick="bulkGen('custom')">✏️ Hanya data baru (<span id="g-cus">-</span>)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch"><span class="ic">📋</span><h2>Pilih Data — Unduh per Dokumen</h2></div>
+    <div class="cb">
+      <div class="ft">
+        <input id="q-search" type="text" placeholder="🔍 Cari nama / nomor sambungan..." oninput="dSearch()">
+        <select id="q-pet" onchange="loadRec(1)">
+          <option value="">Semua Petugas</option>
+        </select>
+        <select id="q-src" onchange="loadRec(1)">
+          <option value="">Semua Sumber</option>
+          <option value="xls">Data Excel</option>
+          <option value="custom">Data Baru</option>
+        </select>
+        <button class="btn btn-o btn-sm" onclick="selAll()">☑️ Pilih Semua</button>
+        <button class="btn btn-o btn-sm" onclick="clrSel()">✖️ Batal</button>
+      </div>
+      <div class="selbar" id="selbar" style="display:none">
+        <span class="sc" id="sc-lbl">0 dipilih</span>
+        <button class="btn btn-s" onclick="bulkGenSel()">📄 Buat PDF yang Dipilih</button>
+        <button class="btn btn-o btn-sm" onclick="clrSel()">Batal</button>
+      </div>
+      <div class="tw">
+        <table class="rt">
+          <thead><tr>
+            <th><input type="checkbox" class="cb2" id="chk-all" onchange="togAll(this)"></th>
+            <th>No.</th><th>Sumber</th><th>Nama Pelanggan</th><th>Alamat</th>
+            <th>No. Sambungan</th><th>Petugas</th><th>Tanggal</th><th>Kesimpulan</th><th>Aksi</th>
+          </tr></thead>
+          <tbody id="rtb"><tr><td colspan="10" style="text-align:center;padding:30px;color:#aaa">Memuat data...</td></tr></tbody>
+        </table>
+      </div>
+      <div class="pag" id="pag"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ TAMBAH DATA ══════════ -->
+<div class="page" id="page-tambah">
+  <div class="card">
+    <div class="ch"><span class="ic">➕</span><h2>Tambah Data Pelanggan Baru</h2></div>
+    <div class="cb">
+      <div class="alt alt-i" style="margin-bottom:16px">ℹ️ Isi formulir di bawah untuk menambah data pelanggan baru. Data ini terpisah dari data Excel asli dan dapat diedit atau dihapus kapan saja.</div>
+
+      <form id="form-tambah" onsubmit="submitTambah(event)">
+        <div class="form-grid">
+          <div class="section-title">📋 Informasi Pelanggan</div>
+
+          <div class="fg full">
+            <label>Nama Pelanggan *</label>
+            <input type="text" name="cust_name" placeholder="Nama lengkap pelanggan" required>
+          </div>
+          <div class="fg full">
+            <label>Alamat Sambungan *</label>
+            <input type="text" name="cust_address" placeholder="Contoh: Jl. Merdeka No. 10, Ds. Sidorejo" required>
+          </div>
+          <div class="fg">
+            <label>Nomor Sambungan *</label>
+            <input type="text" name="cust_code" placeholder="Contoh: 101970060" required>
+          </div>
+          <div class="fg">
+            <label>Nomor Seri Meter Air *</label>
+            <input type="text" name="cust_wmno" placeholder="Contoh: DN15.A.2401002496" required>
+          </div>
+          <div class="fg">
+            <label>Merk Meter</label>
+            <input type="text" name="merk_meter" placeholder="Contoh: amico" value="amico">
+          </div>
+          <div class="fg">
+            <label>Ukuran Meter (mm)</label>
+            <input type="number" name="cust_wmsize" placeholder="15" value="15">
+          </div>
+
+          <div class="section-title">🔧 Informasi Petugas & Tanggal</div>
+
+          <div class="fg">
+            <label>Nama Petugas *</label>
+            <select name="petugasnm" required id="sel-petugas">
+              <option value="">-- Pilih Petugas --</option>
+            </select>
+            <span class="hint">Pilih dari daftar, atau ketik nama petugas baru di bawah</span>
+          </div>
+          <div class="fg">
+            <label>Atau ketik nama petugas baru</label>
+            <input type="text" id="inp-petugas-baru" placeholder="Nama petugas (jika belum ada di daftar)" oninput="syncPetugas()">
+          </div>
+          <div class="fg">
+            <label>Tanggal SPK *</label>
+            <input type="date" name="spk_date" id="inp-spk" required>
+          </div>
+          <div class="fg">
+            <label>Tanggal BA</label>
+            <input type="date" name="ba_date" id="inp-ba">
+          </div>
+          <div class="fg">
+            <label>Nomor SPK</label>
+            <input type="text" name="spk_no" placeholder="SPK-XXXXX/...">
+          </div>
+          <div class="fg">
+            <label>Nomor BA</label>
+            <input type="text" name="ba_no" placeholder="BA-XXXXX/...">
+          </div>
+
+          <div class="section-title">📊 Data Pengukuran</div>
+
+          <div class="fg">
+            <label>Alat Ukur</label>
+            <select name="tera_equipment">
+              <option value="gelas ukur">Gelas Ukur</option>
+              <option value="ember">Ember</option>
+              <option value="Gelas Ukur">Gelas Ukur/Ember</option>
+            </select>
+          </div>
+          <div class="fg"></div>
+
+          <!-- Test 1 -->
+          <div class="section-title">Pengujian ke-1</div>
+          <div class="fg"><label>Vol. Water Meter (ml)</label><input type="number" name="t1_wm_vol" placeholder="1000" value="1000" oninput="calcDev(1)"></div>
+          <div class="fg"><label>Vol. Gelas Ukur (ml)</label><input type="number" name="t1_eq_vol" placeholder="1000" oninput="calcDev(1)"></div>
+          <div class="fg"><label>Deviasi (ml) <small style="color:#aaa">(otomatis)</small></label><input type="number" name="t1_vol_deviation" id="dev1ml" readonly style="background:#f4f4f4"></div>
+          <div class="fg"><label>Deviasi (%) <small style="color:#aaa">(otomatis)</small></label><input type="number" name="t1_persen_deviation" id="dev1pct" readonly style="background:#f4f4f4"></div>
+          <div class="fg full"><label>Akurat?</label>
+            <select name="t1_isaccurate" id="acc1">
+              <option value="0">TIDAK AKURAT</option>
+              <option value="1">AKURAT</option>
+            </select>
+          </div>
+
+          <!-- Test 2 -->
+          <div class="section-title">Pengujian ke-2</div>
+          <div class="fg"><label>Vol. Water Meter (ml)</label><input type="number" name="t2_wm_vol" placeholder="1000" value="1000" oninput="calcDev(2)"></div>
+          <div class="fg"><label>Vol. Gelas Ukur (ml)</label><input type="number" name="t2_eq_vol" placeholder="1000" oninput="calcDev(2)"></div>
+          <div class="fg"><label>Deviasi (ml)</label><input type="number" name="t2_vol_deviation" id="dev2ml" readonly style="background:#f4f4f4"></div>
+          <div class="fg"><label>Deviasi (%)</label><input type="number" name="t2_persen_deviation" id="dev2pct" readonly style="background:#f4f4f4"></div>
+          <div class="fg full"><label>Akurat?</label><select name="t2_isaccurate" id="acc2"><option value="0">TIDAK AKURAT</option><option value="1">AKURAT</option></select></div>
+
+          <!-- Test 3 -->
+          <div class="section-title">Pengujian ke-3</div>
+          <div class="fg"><label>Vol. Water Meter (ml)</label><input type="number" name="t3_wm_vol" placeholder="1000" value="1000" oninput="calcDev(3)"></div>
+          <div class="fg"><label>Vol. Gelas Ukur (ml)</label><input type="number" name="t3_eq_vol" placeholder="1000" oninput="calcDev(3)"></div>
+          <div class="fg"><label>Deviasi (ml)</label><input type="number" name="t3_vol_deviation" id="dev3ml" readonly style="background:#f4f4f4"></div>
+          <div class="fg"><label>Deviasi (%)</label><input type="number" name="t3_persen_deviation" id="dev3pct" readonly style="background:#f4f4f4"></div>
+          <div class="fg full"><label>Akurat?</label><select name="t3_isaccurate" id="acc3"><option value="0">TIDAK AKURAT</option><option value="1">AKURAT</option></select></div>
+
+          <div class="section-title">📝 Kesimpulan</div>
+          <div class="fg">
+            <label>Kesimpulan Tera</label>
+            <select name="tera_conclution1">
+              <option value="0">Tidak Akurat / Ganti Meter</option>
+              <option value="1">Akurat</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Keterangan Tambahan</label>
+            <select name="tera_conclution2">
+              <option value="0">Rusak / Tidak Akurat</option>
+              <option value="2">Buram / Ganti Kaca</option>
+              <option value="1">Lainnya</option>
+            </select>
+          </div>
+          <div class="fg full">
+            <label>Deskripsi Keterangan</label>
+            <textarea name="tera_desc" placeholder="Keterangan kondisi meter..."></textarea>
+          </div>
+
+          <div class="fg full" style="margin-top:8px;display:flex;gap:12px">
+            <button type="submit" class="btn btn-s btn-lg">💾 &nbsp;Simpan Data Baru</button>
+            <button type="button" class="btn btn-o btn-lg" onclick="resetForm()">🔄 &nbsp;Reset Form</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Data baru list -->
+  <div class="card">
+    <div class="ch"><span class="ic">📋</span><h2>Daftar Data yang Ditambahkan (<span id="cust-count">0</span>)</h2></div>
+    <div class="cb">
+      <div id="cust-empty" class="alt alt-i">ℹ️ Belum ada data baru yang ditambahkan.</div>
+      <div class="tw" id="cust-table-wrap" style="display:none">
+        <table class="rt">
+          <thead><tr><th>No.</th><th>Nama</th><th>Alamat</th><th>No. Sambungan</th><th>Petugas</th><th>Tanggal</th><th>Aksi</th></tr></thead>
+          <tbody id="cust-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- PROGRESS MODAL -->
+<div class="mo" id="mo">
+  <div class="mb">
+    <h2 id="mo-title">⚙️ Membuat Dokumen...</h2>
+    <p id="mo-desc">Harap tunggu, proses sedang berjalan...</p>
+    <div class="pgbar"><div class="pgfill" id="pgf" style="width:5%"></div></div>
+    <p id="pg-lbl" style="text-align:center;font-size:14px;color:#555;margin-top:6px">Menyiapkan...</p>
+    <div id="mo-result" style="display:none;margin-top:14px">
+      <div class="alt alt-s" id="mo-ok"></div>
+      <div class="fl" id="mo-files"></div>
+      <div style="margin-top:12px;text-align:center"><button class="btn btn-p btn-lg" onclick="closeMo()">✅ Selesai</button></div>
+    </div>
+    <div id="mo-cancel" style="margin-top:14px;text-align:center">
+      <button class="btn btn-o" onclick="closeMo()">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════ STATE ═══════════
+let curPage=1, totPages=1, totRec=0;
+let sel=new Set();
+let jobId=null, pollTmr=null;
+let status=null;
+
+// ═══════════ NAV ═══════════
+function nav(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(x=>x.classList.remove('on'));
+  document.getElementById('page-'+p).classList.add('on');
+  document.getElementById('nb-'+p).classList.add('on');
+  if(p==='signatures') loadSig();
+  if(p==='generate')   initGen();
+  if(p==='dashboard')  loadDash();
+  if(p==='tambah')     initTambah();
+}
+
+// ═══════════ STATUS ═══════════
+async function getStatus(){
+  try{
+    const r=await fetch('/api/status');
+    status=await r.json();
+    const tot=status.totalPetugas, up=status.uploadedPetugas;
+    document.getElementById('s-total').textContent=status.totalRecords.toLocaleString('id');
+    document.getElementById('s-pet').textContent=`${up}/${tot}`;
+    document.getElementById('s-ket').textContent=status.ketuaUploaded?'✅':'❌';
+    return status;
+  }catch(e){console.error(e)}
+}
+
+// ═══════════ DASHBOARD ═══════════
+async function loadDash(){
+  const d=await getStatus(); if(!d) return;
+  const tot=d.totalPetugas, up=d.uploadedPetugas+(d.ketuaUploaded?1:0);
+  const mis=(tot-d.uploadedPetugas)+(d.ketuaUploaded?0:1);
+  document.getElementById('t-total').textContent=d.totalRecords.toLocaleString('id');
+  document.getElementById('t-ok').textContent=up;
+  document.getElementById('t-mis').textContent=mis;
+}
+
+// ═══════════ SIGNATURES ═══════════
+async function loadSig(){
+  await getStatus(); if(!status) return;
+  const ok=status.ketuaUploaded;
+  document.getElementById('kb').textContent=ok?'✅ Sudah Ada':'❌ Belum Ada';
+  document.getElementById('kb').className='sbadge '+(ok?'sb-ok':'sb-no');
+  document.getElementById('kd').style.display=ok?'block':'none';
+  const kp=document.getElementById('kp');
+  if(ok){kp.className='sp ok';kp.innerHTML=`<img src="/signatures/ketua_Harsono.png?t=${Date.now()}">`;}
+  else{kp.className='sp';kp.innerHTML='<span class="ph">📷<br>Belum ada</span>';}
+
+  const pl=status.petugasList, ps=status.sigStatus.petugas;
+  const tot=pl.length, upl=Object.values(ps).filter(Boolean).length;
+  document.getElementById('pg-hdr').textContent=`${upl} dari ${tot} sudah diunggah`;
+  document.getElementById('pg-summary').innerHTML=
+    `<span class="sbadge sb-ok">✅ ${upl} sudah ada</span> &nbsp; <span class="sbadge sb-no">❌ ${tot-upl} belum ada</span>`;
+
+  const grid=document.getElementById('pg-grid');
+  grid.innerHTML=pl.map(name=>{
+    const has=ps[name];
+    const safe=name.replace(/[^a-zA-Z0-9_]/g,'_');
+    return `<div class="pc ${has?'ok':''}" id="pc-${safe}">
+      <div class="pn">${esc(name)}</div>
+      <div class="ps">Petugas Tera Meter</div>
+      <span class="sbadge ${has?'sb-ok':'sb-no'}">${has?'✅ Ada':'❌ Belum ada'}</span>
+      ${has?`<div class="sp ok" style="margin-top:7px;width:160px;height:58px">
+        <img src="/signatures/petugas_${safe}.png?t=${Date.now()}"></div>`:''}
+      <div class="flex g8 ic" style="margin-top:8px;flex-wrap:wrap">
+        <label class="btn btn-p btn-sm" style="cursor:pointer">
+          📷 ${has?'Ganti':'Upload'} Tanda Tangan
+          <input type="file" accept="image/*" style="display:none" onchange="upPetugas('${esc(name)}',this)">
+        </label>
+        ${has?`<button class="btn btn-d btn-sm" onclick="delSig('petugas','${esc(name)}')">🗑️ Hapus</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function uploadKetua(inp){
+  if(!inp.files[0]) return;
+  const fd=new FormData(); fd.append('sig',inp.files[0]);
+  toast('⏳ Mengunggah...');
+  const r=await fetch('/api/sig/ketua',{method:'POST',body:fd});
+  const d=await r.json();
+  if(d.ok){toast('✅ Tanda tangan Ketua disimpan!','s');loadSig();getStatus();}
+  else toast('❌ '+d.error,'e');
+  inp.value='';
+}
+
+async function upPetugas(name,inp){
+  if(!inp.files[0]) return;
+  const fd=new FormData(); fd.append('sig',inp.files[0]); fd.append('name',name);
+  toast(`⏳ Mengunggah tanda tangan ${name}...`);
+  const r=await fetch('/api/sig/petugas',{method:'POST',body:fd});
+  const d=await r.json();
+  if(d.ok){toast(`✅ ${name} disimpan!`,'s');loadSig();getStatus();}
+  else toast('❌ '+d.error,'e');
+  inp.value='';
+}
+
+async function delSig(type,name){
+  if(!confirm(`Hapus tanda tangan ${name}?`)) return;
+  const safeName=encodeURIComponent(name);
+  await fetch(`/api/sig/${type}/${safeName}`,{method:'DELETE'});
+  toast('🗑️ Tanda tangan dihapus','w');
+  loadSig(); getStatus();
+}
+
+// ═══════════ GENERATE ═══════════
+let dTimer=null;
+function dSearch(){clearTimeout(dTimer);dTimer=setTimeout(()=>loadRec(1),380);}
+
+async function initGen(){
+  await getStatus(); if(!status) return;
+  document.getElementById('g-total').textContent=status.totalRecords.toLocaleString('id');
+  document.getElementById('g-xls').textContent=status.totalXls||'-';
+  document.getElementById('g-cus').textContent=status.totalCustom||'-';
+  const mis=status.totalPetugas-status.uploadedPetugas;
+  document.getElementById('sig-warn').style.display=mis>0?'flex':'none';
+
+  const sel=document.getElementById('q-pet');
+  const ex=[...sel.options].map(o=>o.value);
+  status.petugasList.forEach(p=>{
+    if(!ex.includes(p)){const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);}
+  });
+  loadRec(1);
+}
+
+async function loadRec(page){
+  curPage=page;
+  const q=document.getElementById('q-search').value;
+  const pet=document.getElementById('q-pet').value;
+  const src=document.getElementById('q-src').value;
+  const params=new URLSearchParams({page,limit:25,search:q,petugas:pet,src});
+  const r=await fetch('/api/records?'+params);
+  const data=await r.json();
+  totRec=data.total; totPages=Math.ceil(data.total/25);
+
+  const tbody=document.getElementById('rtb');
+  if(!data.data.length){
+    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:28px;color:#aaa">Tidak ada data</td></tr>';
+  } else {
+    // Calculate global index correctly
+    tbody.innerHTML=data.data.map((rec,i)=>{
+      const gi=(page-1)*25+i;
+      const chk=sel.has(`${rec._src}:${rec._idx}`)?'checked':'';
+      const ks=rec.kesimpulan==='Akurat'?'sb-ok':rec.kesimpulan==='Ganti Meter'?'sb-no':'sb-w';
+      const tag=rec._src==='xls'?'<span class="tag-xls">Excel</span>':'<span class="tag-cst">Baru</span>';
+      return `<tr>
+        <td><input type="checkbox" class="cb2 rc" data-src="${rec._src}" data-idx="${rec._idx}" ${chk} onchange="togRow(this)"></td>
+        <td>${gi+1}</td>
+        <td>${tag}</td>
+        <td><b>${esc(rec.nama||'-')}</b></td>
+        <td style="font-size:13px;color:#555">${esc(rec.alamat||'-')}</td>
+        <td style="font-family:monospace">${esc(String(rec.noSambungan||'-'))}</td>
+        <td style="font-size:13px">${esc(rec.petugas||'-')}</td>
+        <td style="font-size:13px">${rec.tanggal}</td>
+        <td><span class="sbadge ${ks}">${rec.kesimpulan}</span></td>
+        <td>
+          <a class="btn btn-p btn-sm" href="/api/pdf/${rec._src}/${rec._idx}" download>📄 Unduh</a>
+          ${rec._src==='custom'?`<button class="btn btn-d btn-sm" style="margin-top:4px" onclick="delCustom(${rec._idx})">🗑️</button>`:''}
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  renderPag();
+  updSelBar();
+}
+
+function togRow(cb){
+  const key=`${cb.dataset.src}:${cb.dataset.idx}`;
+  if(cb.checked) sel.add(key); else sel.delete(key);
+  updSelBar();
+  document.getElementById('chk-all').checked=false;
+}
+function togAll(cb){
+  document.querySelectorAll('.rc').forEach(c=>{
+    c.checked=cb.checked;
+    const k=`${c.dataset.src}:${c.dataset.idx}`;
+    if(cb.checked) sel.add(k); else sel.delete(k);
+  });
+  updSelBar();
+}
+function selAll(){document.querySelectorAll('.rc').forEach(c=>{c.checked=true;sel.add(`${c.dataset.src}:${c.dataset.idx}`);});updSelBar();}
+function clrSel(){sel.clear();document.querySelectorAll('.rc').forEach(c=>c.checked=false);document.getElementById('chk-all').checked=false;updSelBar();}
+function updSelBar(){
+  const n=sel.size;
+  document.getElementById('selbar').style.display=n?'flex':'none';
+  document.getElementById('sc-lbl').textContent=`${n} data dipilih`;
+}
+
+function renderPag(){
+  const pag=document.getElementById('pag');
+  if(totPages<=1){pag.innerHTML='';return;}
+  let h=`<button class="pb" onclick="loadRec(${curPage-1})" ${curPage===1?'disabled':''}>◀</button>`;
+  const s=Math.max(1,curPage-2), e=Math.min(totPages,curPage+2);
+  if(s>1) h+=`<button class="pb" onclick="loadRec(1)">1</button><span>…</span>`;
+  for(let i=s;i<=e;i++) h+=`<button class="pb ${i===curPage?'on':''}" onclick="loadRec(${i})">${i}</button>`;
+  if(e<totPages) h+=`<span>…</span><button class="pb" onclick="loadRec(${totPages})">${totPages}</button>`;
+  h+=`<button class="pb" onclick="loadRec(${curPage+1})" ${curPage===totPages?'disabled':''}>▶</button>`;
+  h+=`<span style="font-size:13px;color:#777">${curPage}/${totPages} (${totRec.toLocaleString('id')} data)</span>`;
+  pag.innerHTML=h;
+}
+
+async function bulkGen(src){
+  const label={'all':'semua','xls':'data Excel','custom':'data baru'}[src]||src;
+  if(!confirm(`Buat PDF untuk ${label}?\n\nProses ini mungkin memerlukan beberapa menit.`)) return;
+  startBulk({src});
+}
+
+async function bulkGenSel(){
+  if(!sel.size){toast('Pilih data dulu','w');return;}
+  const indices=[...sel].map(k=>{
+    const[src,idx]=k.split(':');
+    return {src,idx:parseInt(idx)};
+  });
+  startBulk({src:'selected',indices});
+}
+
+async function startBulk(payload){
+  const r=await fetch('/api/generate-bulk',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const d=await r.json();
+  if(d.jobId){jobId=d.jobId;openMo(d.total);pollJob(d.total);}
+  else toast('❌ Gagal: '+(d.error||'unknown'),'e');
+}
+
+function openMo(total){
+  document.getElementById('mo-title').textContent='⚙️ Sedang Membuat Dokumen...';
+  document.getElementById('mo-desc').textContent=`Membuat ${total.toLocaleString('id')} dokumen. Harap tunggu...`;
+  document.getElementById('pgf').style.width='5%';
+  document.getElementById('pg-lbl').textContent='Menyiapkan...';
+  document.getElementById('mo-result').style.display='none';
+  document.getElementById('mo-cancel').style.display='block';
+  document.getElementById('mo').classList.add('on');
+}
+function closeMo(){document.getElementById('mo').classList.remove('on');if(pollTmr)clearInterval(pollTmr);}
+
+function pollJob(total){
+  pollTmr=setInterval(async()=>{
+    const r=await fetch('/api/job/'+jobId);
+    const d=await r.json();
+    if(d.status==='running'){
+      const pct=Math.round((d.generated/total)*100);
+      document.getElementById('pgf').style.width=pct+'%';
+      document.getElementById('pg-lbl').textContent=`${d.generated} dari ${total} selesai (${pct}%)`;
+    } else if(d.status==='done'){
+      clearInterval(pollTmr);
+      document.getElementById('pgf').style.width='100%';
+      document.getElementById('pg-lbl').textContent='Selesai!';
+      document.getElementById('mo-ok').textContent=`✅ ${d.success} dokumen berhasil. ${d.failed?d.failed+' gagal.':''}`;
+      const fl=document.getElementById('mo-files');
+      fl.innerHTML=(d.files||[]).slice(0,60).map(f=>`
+        <div class="fi"><span>📄 ${esc(f.name)}</span><a href="${f.path}" download>⬇️ Unduh</a></div>
+      `).join('')+(d.files.length>60?`<div class="fi" style="justify-content:center;color:#999">...${d.files.length-60} file lainnya tersedia</div>`:'');
+      document.getElementById('mo-result').style.display='block';
+      document.getElementById('mo-cancel').style.display='none';
+      document.getElementById('mo-title').textContent='✅ Proses Selesai!';
+      document.getElementById('mo-desc').textContent='';
+      toast(`✅ ${d.success} dokumen selesai dibuat!`,'s');
+    }
+  },2000);
+}
+
+// ═══════════ TAMBAH DATA ═══════════
+function initTambah(){
+  // Set today date
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('inp-spk').value=today;
+  document.getElementById('inp-ba').value=today;
+
+  // Fill petugas dropdown
+  const sel=document.getElementById('sel-petugas');
+  if(status){
+    const ex=[...sel.options].map(o=>o.value);
+    status.petugasList.forEach(p=>{
+      if(!ex.includes(p)){const o=document.createElement('option');o.value=p;o.textContent=p;sel.appendChild(o);}
+    });
+  }
+  loadCustomList();
+}
+
+function syncPetugas(){
+  const baru=document.getElementById('inp-petugas-baru').value.trim();
+  const sel=document.getElementById('sel-petugas');
+  if(baru) sel.value=''; // clear dropdown selection if typing custom
+}
+
+function calcDev(n){
+  const wm=parseFloat(document.querySelector(`[name=t${n}_wm_vol]`).value)||0;
+  const gu=parseFloat(document.querySelector(`[name=t${n}_eq_vol]`).value)||0;
+  if(!wm||!gu) return;
+  const dev=Math.abs(gu-wm);
+  const pct=Math.round((gu/wm)*100);
+  document.getElementById(`dev${n}ml`).value=dev;
+  document.getElementById(`dev${n}pct`).value=pct;
+  const ok=(pct>=95&&pct<=105)?'1':'0';
+  document.getElementById(`acc${n}`).value=ok;
+}
+
+async function submitTambah(e){
+  e.preventDefault();
+  const fd=new FormData(e.target);
+  const data={};
+  fd.forEach((v,k)=>data[k]=v);
+
+  // Handle petugas baru
+  const petBaru=document.getElementById('inp-petugas-baru').value.trim();
+  if(petBaru) data.petugasnm=petBaru;
+
+  // Validate
+  if(!data.petugasnm){toast('Pilih atau isi nama petugas!','w');return;}
+
+  // Set office
+  data.officenm='SUKOHARJO SELATAN';
+  data.cc_date=data.spk_date;
+
+  const r=await fetch('/api/custom',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  const res=await r.json();
+  if(res.ok){
+    toast('✅ Data berhasil disimpan!','s');
+    e.target.reset();
+    document.getElementById('inp-petugas-baru').value='';
+    const today=new Date().toISOString().split('T')[0];
+    document.getElementById('inp-spk').value=today;
+    document.getElementById('inp-ba').value=today;
+    loadCustomList();
+    getStatus();
+  } else toast('❌ Gagal: '+(res.error||'unknown'),'e');
+}
+
+function resetForm(){
+  document.getElementById('form-tambah').reset();
+  document.getElementById('inp-petugas-baru').value='';
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('inp-spk').value=today;
+  document.getElementById('inp-ba').value=today;
+}
+
+async function loadCustomList(){
+  const r=await fetch('/api/custom');
+  const recs=await r.json();
+  document.getElementById('cust-count').textContent=recs.length;
+  if(!recs.length){
+    document.getElementById('cust-empty').style.display='flex';
+    document.getElementById('cust-table-wrap').style.display='none';
+    return;
+  }
+  document.getElementById('cust-empty').style.display='none';
+  document.getElementById('cust-table-wrap').style.display='block';
+  document.getElementById('cust-tbody').innerHTML=recs.map((r,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td><b>${esc(r.cust_name||'-')}</b></td>
+      <td style="font-size:13px">${esc(r.cust_address||'-')}</td>
+      <td style="font-family:monospace">${esc(String(r.cust_code||'-'))}</td>
+      <td style="font-size:13px">${esc(r.petugasnm||'-')}</td>
+      <td style="font-size:13px">${(r.ba_date||r.spk_date||'-').toString().substring(0,10)}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        <a class="btn btn-p btn-sm" href="/api/pdf/custom/${r._idx}" download>📄 Unduh</a>
+        <button class="btn btn-d btn-sm" onclick="delCustom(${r._idx})">🗑️ Hapus</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function delCustom(idx){
+  if(!confirm('Hapus data ini?')) return;
+  await fetch('/api/custom/'+idx,{method:'DELETE'});
+  toast('🗑️ Data dihapus','w');
+  loadCustomList(); getStatus();
+  // reload generate table if visible
+  const gPage=document.getElementById('page-generate');
+  if(gPage.classList.contains('on')) loadRec(curPage);
+}
+
+// ═══════════ UTIL ═══════════
+function toast(msg,type=''){
+  const c=document.getElementById('toast');
+  const el=document.createElement('div');
+  el.className='ti'+(type?' '+type:'');
+  el.textContent=msg;
+  c.appendChild(el);
+  setTimeout(()=>el.remove(),4000);
+}
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+// ═══════════ INIT ═══════════
+loadDash();
+</script>
+</body>
+</html>
