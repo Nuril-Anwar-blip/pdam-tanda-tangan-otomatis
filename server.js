@@ -8,7 +8,7 @@ const { v4: uuid } = require('uuid');
 const { generatePDF } = require('./pdfGenerator');
 
 const app  = express();
-const PORT = 3000;
+const PORT = 3001;
 
 // ── Directories ───────────────────────────────────────────────────────────────
 const ROOT  = __dirname;
